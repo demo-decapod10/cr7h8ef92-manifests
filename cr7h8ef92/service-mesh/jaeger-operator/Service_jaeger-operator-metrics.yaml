@@ -1,0 +1,20 @@
+# Source: jaeger-operator/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-operator-metrics
+  namespace: istio-system
+  labels:
+    
+    app.kubernetes.io/name: jaeger-operator
+    app.kubernetes.io/instance: jaeger-operator
+spec:
+  ports:
+  - name: metrics
+    port: 8383
+    protocol: TCP
+    targetPort: 8383
+  selector:
+    app.kubernetes.io/name: jaeger-operator
+    app.kubernetes.io/instance: jaeger-operator
+  type: ClusterIP

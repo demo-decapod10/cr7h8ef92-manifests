@@ -1,0 +1,13 @@
+# Source: servicemesh-prometheusmonitor/templates/jaeger-podmonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: jaeger-monitor
+  namespace: istio-system
+spec:
+  podMetricsEndpoints:
+  - targetPort: 14269
+    interval: 15s
+  selector:
+    matchLabels:
+      app: jaeger

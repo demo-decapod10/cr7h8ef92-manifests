@@ -1,0 +1,76 @@
+# Source: istio-ingress-gateway/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: istio-egress-gateway
+  namespace: istio-ingress
+  labels:
+    helm.sh/chart: istio-ingress-gateway-1.13.1
+    app: "istio-egress-gateway"
+    istio: egress-gateway
+    app.kubernetes.io/version: "1.13.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: istio-egress-gateway
+  annotations:
+    {}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "istio-egress-gateway"
+      istio: egress-gateway
+  template:
+    metadata:
+      annotations:
+        inject.istio.io/templates: gateway
+        prometheus.io/path: /stats/prometheus
+        prometheus.io/port: "15020"
+        prometheus.io/scrape: "true"
+        sidecar.istio.io/inject: "true"
+      labels:
+        sidecar.istio.io/inject: "true"
+        app: "istio-egress-gateway"
+        istio: egress-gateway
+    spec:
+      serviceAccountName: istio-egress-gateway
+      securityContext:
+        # Safe since 1.22: https://github.com/kubernetes/kubernetes/pull/103326
+        sysctls:
+        - name: net.ipv4.ip_unprivileged_port_start
+          value: "0"
+      containers:
+        - name: istio-proxy
+          image: istio/proxyv2:1.13.1
+          securityContext:
+            # Safe since 1.22: https://github.com/kubernetes/kubernetes/pull/103326
+            capabilities:
+              drop:
+              - ALL
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsUser: 1337
+            runAsGroup: 1337
+            runAsNonRoot: true
+          env:
+          ports:
+          - containerPort: 15090
+            protocol: TCP
+            name: http-envoy-prom
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 2048Mi
+            requests:
+              cpu: 1000m
+              memory: 1024Mi
+      nodeSelector:
+        taco-egress-gateway: enabled
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: istio-egress-gateway
+            topologyKey: kubernetes.io/hostname
+

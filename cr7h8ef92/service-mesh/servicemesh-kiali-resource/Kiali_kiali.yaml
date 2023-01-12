@@ -1,0 +1,71 @@
+---
+# Source: servicemesh-kiali-resource/templates/kiali-controlplane.yaml
+apiVersion: kiali.io/v1alpha1
+kind: Kiali
+metadata:
+  name: kiali
+  namespace: istio-system
+  annotations:
+    ansible.operator-sdk/verbosity: "1"
+spec:
+  istio_namespace: istio-system
+  deployment:
+    accessible_namespaces: ["**"]
+    ingress_enabled: false
+    namespace: istio-system
+    image_name: quay.io/kiali/kiali
+    image_version: v1.45.1
+    replicas: 1
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1024Mi
+    node_selector:
+      servicemesh: enabled
+    service_type: ClusterIP
+  auth:
+    strategy: anonymous
+  external_services:
+    custom_dashboards:
+      enabled: true
+    istio:
+      config_map_name: istio
+      istio_identity_domain: svc.cluster.local
+      component_status:
+        enabled: true
+        components:
+        - app_label: istiod
+          is_core: true
+          is_proxy: false
+        - app_label: istio-ingress-gateway
+          is_core: true
+          is_proxy: true
+        - app_label: istio-egress-gateway
+          is_core: false
+          is_proxy: true
+    prometheus:
+      url: http://lma-prometheus.lma.svc:9090
+    tracing:
+      enabled: true
+      namespace_selector: true
+      in_cluster_url: http://jaeger-operator-jaeger-query.istio-system:16686/jaeger
+      url: https://jaeger-v2.taco-cat.xyz
+      use_grpc: false
+    grafana:
+      auth:
+        password: password
+        type: basic
+        use_kiali_token: false
+        username: admin
+      enabled: true
+      in_cluster_url: http://grafana.lma.svc:80
+      url: https://grafana-v2.taco-cat.xyz
+  server:
+    metrics_enabled: true
+    metrics_port: 9090
+    port: 20001
+    web_root: /kiali
+

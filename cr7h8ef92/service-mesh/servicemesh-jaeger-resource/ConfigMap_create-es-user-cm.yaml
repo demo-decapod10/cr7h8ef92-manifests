@@ -1,0 +1,24 @@
+# Source: servicemesh-jaeger-resource/templates/create-es-user-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: create-es-user-cm
+  namespace: istio-system
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "10"
+data:
+  create_user.sh: |-
+    #!/bin/sh
+    set -ex
+    curl -k -u elastic:${ELASTIC_PW} -X POST ${ES_URL}/_security/user/$1 -H 'Content-Type: application/json' -d'
+    {
+      "password" : "password",
+      "roles" : [ "superuser" ],
+      "full_name" : "Jaeger user by TACO",
+      "email" : "taco@taco.com",
+      "metadata" : {
+        "intelligence" : 7
+      }
+    }
+    '

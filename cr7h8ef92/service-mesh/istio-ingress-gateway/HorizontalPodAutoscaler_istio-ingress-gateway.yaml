@@ -1,0 +1,30 @@
+# Source: istio-ingress-gateway/templates/hpa.yaml
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: istio-ingress-gateway
+  namespace: istio-ingress
+  labels:
+    helm.sh/chart: istio-ingress-gateway-1.13.1
+    app: "istio-ingress-gateway"
+    istio: ingress-gateway
+    app.kubernetes.io/version: "1.13.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: istio-ingress-gateway
+  annotations:
+    {}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: istio-ingress-gateway
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          averageUtilization: 80
+          type: Utilization
+
