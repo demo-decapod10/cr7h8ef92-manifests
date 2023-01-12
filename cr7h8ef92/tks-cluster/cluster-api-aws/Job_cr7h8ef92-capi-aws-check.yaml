@@ -1,0 +1,32 @@
+# Source: cluster-api-aws/templates/job-check.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cr7h8ef92-capi-aws-check
+  namespace: cr7h8ef92
+spec:
+  template:
+    metadata:
+      name: cr7h8ef92-capi-aws
+    spec:
+      serviceAccountName: cr7h8ef92-capi-aws
+      containers:
+      - name: wait-for-ready
+        image: "ghcr.io/openinfradev/python_kubectl_argo:v1.1.0"
+        imagePullPolicy: IfNotPresent
+        command:
+        - timeout 
+        - 5m
+        - /wait_for_kubeconfig.sh  
+        - cr7h8ef92
+        - cr7h8ef92
+        volumeMounts:
+        - name: vol
+          subPath: wait_for_kubeconfig.sh
+          mountPath: /wait_for_kubeconfig.sh
+      volumes:
+      - name: vol
+        configMap:
+          name: cr7h8ef92-capi-aws
+          defaultMode: 0555
+      restartPolicy: OnFailure
