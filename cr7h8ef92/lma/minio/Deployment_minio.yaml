@@ -52,6 +52,9 @@ spec:
           #image: quay.io/minio/minio:RELEASE.2023-01-18T04-36-38Z
           image: docker.io/minio/minio:RELEASE.2023-01-18T04-36-38Z
           imagePullPolicy: "IfNotPresent"
+          args:
+          - server
+          - /data
           securityContext:
             runAsUser: 1001
             runAsNonRoot: true
