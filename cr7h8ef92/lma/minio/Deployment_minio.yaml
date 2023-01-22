@@ -48,13 +48,8 @@ spec:
         fsGroup: 1001
       containers:
         - name: minio
-          #image: docker.io/bitnami/minio:2021.6.14-debian-10-r0
-          #image: quay.io/minio/minio:RELEASE.2023-01-18T04-36-38Z
-          image: docker.io/minio/minio:RELEASE.2023-01-18T04-36-38Z
+          image: docker.io/bitnami/minio:2021.6.14-debian-10-r0
           imagePullPolicy: "IfNotPresent"
-          args:
-          - server
-          - /data
           securityContext:
             runAsUser: 1001
             runAsNonRoot: true
