@@ -27,7 +27,7 @@ spec:
         app: minio
         release: minio
       annotations:
-        checksum/secrets: 4dde78e82c6d4f981fd7dff1675b63b9ce8c4da131df567e2afb3f78a754093d
+        checksum/secrets: a83e62d57fc9327919445712d7ea20dda1adedd479f7f5f0c8b728a33c235ad3
         checksum/config: d09355179cde0f5622e26767fab0aa9b4d96538f4c121ddc3b3b4c6a280283a3
     spec:
       securityContext:
@@ -39,7 +39,7 @@ spec:
       serviceAccountName: minio-sa
       containers:
         - name: minio
-          image: "quay.io/minio/minio:RELEASE.2022-12-12T19-27-27Z"
+          image: "quay.io/minio/minio:RELEASE.2023-01-20T02-05-44Z"
           imagePullPolicy: IfNotPresent
           command:
             - "/bin/sh"
