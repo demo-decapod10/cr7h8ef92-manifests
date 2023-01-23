@@ -1,0 +1,83 @@
+# Source: minio/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minio
+  namespace: "lma"
+  labels:
+    app: minio
+    chart: minio-7.0.0
+    release: minio
+    heritage: Helm
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: "Parallel"
+  serviceName: minio-svc
+  replicas: 16
+  selector:
+    matchLabels:
+      app: minio
+      release: minio
+  template:
+    metadata:
+      name: minio
+      labels:
+        app: minio
+        release: minio
+      annotations:
+        checksum/secrets: a9df57b1ffd9070384e4adb48e0c01ce26754e02079d40aac78f8ea55810d682
+        checksum/config: d09355179cde0f5622e26767fab0aa9b4d96538f4c121ddc3b3b4c6a280283a3
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+
+      serviceAccountName: minio-sa
+      containers:
+        - name: minio
+          image: quay.io/minio/minio:RELEASE.2022-12-12T19-27-27Z
+          imagePullPolicy: IfNotPresent
+
+          command: [ "/bin/sh",
+            "-ce",
+            "/usr/bin/docker-entrypoint.sh minio server  http://minio-{0...15}.minio-svc.lma.svc.cluster.local/export -S /etc/minio/certs/ --address :9000 --console-address :9001" ]
+          volumeMounts:
+            - name: export
+              mountPath: /export            
+          ports:
+            - name: http
+              containerPort: 9000
+            - name: http-console
+              containerPort: 9001
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: rootUser
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: rootPassword
+            - name: MINIO_PROMETHEUS_AUTH_TYPE
+              value: "public"
+          resources:
+            requests:
+              memory: 16Gi      
+      volumes:
+        - name: minio-user
+          secret:
+            secretName: minio        
+  volumeClaimTemplates:
+    - metadata:
+        name: export
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: taco-storage
+        resources:
+          requests:
+            storage: 8Gi

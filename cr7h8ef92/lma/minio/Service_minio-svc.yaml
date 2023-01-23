@@ -1,17 +1,17 @@
-# Source: minio/templates/service.yaml
+# Source: minio/templates/statefulset.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: minio
+  name: minio-svc
   namespace: "lma"
   labels:
     app: minio
     chart: minio-7.0.0
-    release: minio
-    heritage: Helm
-    monitoring: "true"
+    release: "minio"
+    heritage: "Helm"
 spec:
-  type: ClusterIP
+  publishNotReadyAddresses: true
+  clusterIP: None
   ports:
     - name: http
       port: 9000
